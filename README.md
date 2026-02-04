@@ -23,13 +23,13 @@ These challenges result in financial risk, operational inefficiencies, and delay
 
 The primary objectives of this project are:
 
-1. Establish a centralized, governed analytics platform.
-2. Create standardized, enterprise-wide KPI definitions.
-3. Enforce business logic upstream of BI tools.
-4. Implement automated data quality controls.
-5. Enable executive, operational, and financial decision-making.
-6. Reduce reporting discrepancies.
-7. Improve long-term data trust.
+- Establish a centralized, governed analytics platform.
+- Create standardized, enterprise-wide KPI definitions.
+- Enforce business logic upstream of BI tools.
+- Implement automated data quality controls.
+- Enable executive, operational, and financial decision-making.
+- Reduce reporting discrepancies.
+- Improve long-term data trust.
 
 4. Project Scope
 
