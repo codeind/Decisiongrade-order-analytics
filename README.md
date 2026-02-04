@@ -62,13 +62,7 @@ These datasets provide realistic characteristics such as missing values, delayed
 
 The platform follows a layered, enterprise-grade architecture:
 
-Source Systems
-→ Raw Data Layer
-→ Staging Layer
-→ Business Logic Layer
-→ Analytics Marts
-→ Metrics Layer
-→ BI Dashboards
+<img width="688" height="40" alt="Screenshot 2026-02-04 at 1 23 19 PM" src="https://github.com/user-attachments/assets/83495427-79a9-484e-9fd6-834a5c28491d" />
 
 Each layer has a clearly defined responsibility and enforces separation of concerns.
 
