@@ -72,7 +72,15 @@ Source Systems
 
 Each layer has a clearly defined responsibility and enforces separation of concerns.
 
-7. Data Modeling Strategy
+7.  Repository Structure
+
+Docs/ # Business & technical documentation
+Data/ # Raw and processed datasets
+DBT/ # Transformation models
+Dashboards/ # BI artifacts
+Governance/ # Data quality & ownership rules
+
+8.  Data Modeling Strategy
 
 Dimensional modeling techniques are used to support scalable analytics.
 
@@ -190,11 +198,5 @@ Planned future improvements include:
 - Advanced anomaly detection
 - Self-service analytics enablement
 
-16. Contact Information
-
-Rajat Jhawar
-Email: rajatjhawar23@gmail.com
-GitHub: https://github.com/codeind
-LinkedIn: (Add profile link)
 
 
