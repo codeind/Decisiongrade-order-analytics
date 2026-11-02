@@ -73,7 +73,7 @@ All 90 tests: [Governance/test_catalog.md](Governance/test_catalog.md) · Rules 
 
 ## Dashboard
 
-**Live dashboard:** https://codeind.github.io/Decisiongrade-order-analytics/Dashboards/
+**Live dashboard:** https://codeind.github.io/Decisiongrade-order-analytics/Dashboards/  
 **Lineage (dbt docs):** https://codeind.github.io/Decisiongrade-order-analytics/Docs/dbt_docs/
 
 ![Dashboard overview](Dashboards/screenshots/dashboard_overview.png)
