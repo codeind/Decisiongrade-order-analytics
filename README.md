@@ -64,7 +64,7 @@ Every formula, grain and owner: [Governance/metric_definitions.md](Governance/me
 
 - **85 error-severity tests**: unique and not-null keys, referential integrity between every fact and dimension, accepted values, plus custom rules such as "KPI revenue must reconcile to the fact table to the cent". A failure makes dbt skip every downstream model.
 - **5 warn-severity tests**: SLA floor, revenue month-over-month anomaly, payment reconciliation rate, invalid ship dates, delivered orders without a date.
-- **CI** ([.github/workflows/dbt_ci.yml](.github/workflows/dbt_ci.yml)) runs `dbt build` on a committed 3% sample on every pull request. A failing test fails the check and, with branch protection on, blocks the merge.
+- **CI** ([.github/workflows/dbt_ci.yml](.github/workflows/dbt_ci.yml)) runs `dbt build` on a committed 3% sample on every pull request. A failing test fails the check, and branch protection on `main` blocks the merge.
 - **Change management**: pull request template, CODEOWNERS on metric and test folders, and a change log. See [Governance/change_management.md](Governance/change_management.md).
 
 All 90 tests: [Governance/test_catalog.md](Governance/test_catalog.md) · Rules and results: [Governance/data_quality_rules.md](Governance/data_quality_rules.md)
