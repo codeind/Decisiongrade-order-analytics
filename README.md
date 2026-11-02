@@ -122,6 +122,6 @@ Cloud warehouse: set `MOTHERDUCK_TOKEN` and run `cd DBT && dbt build --profiles-
 - The data is a public, anonymised sample of a real marketplace, not a complete business.
 - Delivery metrics for Jun–Aug 2018 look better than reality because orders still in transit at the data cut-off are excluded.
 
-## License
+## Data source
 
-Code: MIT. Data: Olist dataset, CC BY-NC-SA 4.0.
+[Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce), published on Kaggle under CC BY-NC-SA 4.0. The data is used here for non-commercial portfolio purposes with credit to Olist.
