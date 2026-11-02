@@ -1,0 +1,49 @@
+name: decisiongrade
+version: "1.0.0"
+config-version: 2
+profile: decisiongrade
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+analysis-paths: ["analyses"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+vars:
+  # Folder holding the Olist CSVs, relative to the DBT/ folder.
+  # dev reads the full data; the ci target reads the committed sample
+  raw_data_path: "{{ '../Data/sample' if target.name == 'ci' else '../Data/raw' }}"
+  # Business thresholds used by the warn-level tests
+  on_time_rate_floor: 0.85
+  payment_tolerance_brl: 1.00
+  revenue_mom_swing_limit: 0.60
+
+models:
+  decisiongrade:
+    staging:
+      # tables, not views: views would keep a relative path to the CSVs and
+      # break when the warehouse is opened from another folder (e.g. Power BI)
+      +materialized: table
+      +schema: staging
+    intermediate:
+      +materialized: view
+      +schema: intermediate
+    marts:
+      +materialized: table
+      core:
+        +schema: core
+      metrics:
+        +schema: metrics
+
+seeds:
+  decisiongrade:
+    +schema: reference
+
+tests:
+  decisiongrade:
+    critical:
+      +severity: error
+    business:
+      +severity: warn

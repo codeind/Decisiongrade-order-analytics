@@ -1,0 +1,52 @@
+name: dbt CI
+
+# Runs the full dbt pipeline (models + 90 data tests) on every pull request
+# and on pushes to main. Error-severity tests fail the job, which blocks the
+# merge once branch protection requires this check (see Governance/).
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  dbt-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Build models and run data tests on the sample data
+        working-directory: DBT
+        run: dbt build --profiles-dir . --target ci
+
+      - name: Publish test results
+        if: always()
+        working-directory: DBT
+        run: |
+          python - <<'PY'
+          import json, collections
+          r = json.load(open("target/run_results.json"))
+          c = collections.Counter(x["status"] for x in r["results"])
+          lines = ["## dbt build results", "", "| status | count |", "|---|---|"]
+          lines += [f"| {k} | {v} |" for k, v in sorted(c.items())]
+          bad = [x["unique_id"] for x in r["results"] if x["status"] in ("fail", "error", "warn")]
+          if bad:
+              lines += ["", "Tests needing attention:"] + [f"- `{b}`" for b in bad]
+          open(__import__("os").environ["GITHUB_STEP_SUMMARY"], "a").write("\n".join(lines) + "\n")
+          PY
+
+      - name: Upload dbt artifacts (lineage manifest, results)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dbt-target
+          path: |
+            DBT/target/manifest.json
+            DBT/target/run_results.json

@@ -1,0 +1,5 @@
+# Changes to these paths need review from the listed owner before merge
+# (enforced when branch protection has "Require review from Code Owners" on).
+/DBT/models/marts/metrics/   @codeind
+/Governance/                 @codeind
+/DBT/tests/                  @codeind

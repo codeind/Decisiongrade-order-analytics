@@ -1,0 +1,121 @@
+version: 2
+
+models:
+  - name: dim_date
+    description: Calendar dimension. date_key is an integer yyyymmdd surrogate key.
+    columns:
+      - name: date_key
+        tests: [unique, not_null]
+
+  - name: dim_location
+    description: Brazilian states with macro-region.
+    columns:
+      - name: location_key
+        tests: [unique, not_null]
+
+  - name: dim_customer
+    description: One row per real customer (customer_unique_id), keyed by an md5 surrogate key.
+    columns:
+      - name: customer_key
+        tests: [unique, not_null]
+      - name: customer_unique_id
+        tests: [unique, not_null]
+
+  - name: dim_product
+    columns:
+      - name: product_key
+        tests: [unique, not_null]
+      - name: weight_band
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['light (<0.5kg)', 'medium (0.5-2kg)', 'heavy (2-10kg)', 'bulky (10kg+)', 'unknown']
+
+  - name: dim_seller
+    columns:
+      - name: seller_key
+        tests: [unique, not_null]
+
+  - name: fact_order_finance
+    description: >
+      Grain = one order. net_revenue is item value on delivered orders only;
+      freight is reported separately; payment_variance = payments - (items + freight).
+    columns:
+      - name: order_id
+        description: Olist order id (natural key, grain of this table).
+        tests: [unique, not_null]
+      - name: customer_key
+        description: md5 surrogate key to dim_customer.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customer')
+                field: customer_key
+      - name: net_revenue
+        description: Item value if the order was delivered, otherwise 0.
+      - name: gross_merchandise_value
+        description: Item value of the order regardless of status.
+      - name: payment_variance
+        description: payment_total minus (items + freight). Non-zero values usually mean interest on instalments or vouchers.
+      - name: is_payment_mismatch
+        description: True when abs(payment_variance) is above the payment_tolerance_brl variable (R$1).
+      - name: purchase_date_key
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_key
+      - name: location_key
+        tests:
+          - relationships:
+              arguments:
+                to: ref('dim_location')
+                field: location_key
+
+  - name: fact_order_items
+    description: Grain = one order line.
+    columns:
+      - name: order_item_key
+        tests: [unique, not_null]
+      - name: product_key
+        tests:
+          - relationships:
+              arguments:
+                to: ref('dim_product')
+                field: product_key
+      - name: seller_key
+        tests:
+          - relationships:
+              arguments:
+                to: ref('dim_seller')
+                field: seller_key
+
+  - name: fact_delivery_performance
+    description: Grain = one delivered order with a delivery date and a promised date.
+    columns:
+      - name: order_id
+        tests: [unique, not_null]
+      - name: is_on_time
+        description: Delivered on or before the estimated delivery date (compared at date level).
+        tests: [not_null]
+      - name: days_late
+        description: Days after the promised date; 0 when on time.
+      - name: cycle_time_days
+        description: Days from purchase to delivery.
+      - name: transit_days
+        description: Days from carrier hand-off to delivery.
+      - name: handling_days
+        description: Days from payment approval to carrier hand-off.
+      - name: lateness_band
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['on time', '1-3 days late', '4-7 days late', '8+ days late']
+      - name: purchase_date_key
+        tests:
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date_key
