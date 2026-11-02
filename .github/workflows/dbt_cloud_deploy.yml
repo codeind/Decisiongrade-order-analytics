@@ -1,0 +1,63 @@
+name: Deploy to MotherDuck
+
+# Builds the full pipeline (raw data → staging → star schema → KPI marts,
+# plus all data tests) in the MotherDuck cloud warehouse.
+# Runs on every merge to main, or manually from the Actions tab.
+# Needs a repository secret named MOTHERDUCK_TOKEN.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: motherduck-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      MOTHERDUCK_TOKEN: ${{ secrets.MOTHERDUCK_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Check the token is set
+        run: |
+          if [ -z "$MOTHERDUCK_TOKEN" ]; then
+            echo "::error::Add a repository secret named MOTHERDUCK_TOKEN (Settings → Secrets and variables → Actions)."
+            exit 1
+          fi
+
+      - name: Create the cloud database if needed
+        run: python -c "import duckdb; duckdb.connect('md:').execute('create database if not exists decisiongrade'); print('database ready')"
+
+      - name: Build models and run tests in MotherDuck
+        working-directory: DBT
+        run: dbt build --profiles-dir . --target cloud
+
+      - name: Check headline numbers in the cloud warehouse
+        run: |
+          python - <<'PY'
+          import duckdb, os
+          con = duckdb.connect("md:decisiongrade")
+          rev, orders = con.execute("select sum(net_revenue), sum(orders_placed) from metrics.kpi_monthly").fetchall()[0]
+          tables = con.execute("""select table_schema, count(*) from information_schema.tables
+                                  where table_catalog = 'decisiongrade' and table_schema in
+                                  ('reference','staging','intermediate','core','metrics')
+                                  group by 1 order by 1""").fetchall()
+          lines = ["## MotherDuck deployment", "",
+                   f"- Net revenue in `metrics.kpi_monthly`: R${rev:,.2f}",
+                   f"- Orders: {int(orders):,}", "",
+                   "| Schema | Tables and views |", "|---|---|"]
+          lines += [f"| {s} | {n} |" for s, n in tables]
+          print("\n".join(lines))
+          open(os.environ["GITHUB_STEP_SUMMARY"], "a").write("\n".join(lines) + "\n")
+          PY

@@ -100,7 +100,7 @@ make analysis                        # charts, KPI exports, dashboard data
 
 The raw Olist files are already in `Data/raw/`, so the pipeline runs straight after cloning. `make ci` builds on the small 3% sample instead, which is what GitHub Actions runs.
 
-Cloud warehouse: set `MOTHERDUCK_TOKEN` and run `cd DBT && dbt build --profiles-dir . --target cloud`.
+**Cloud warehouse:** every merge to `main` deploys the full pipeline to MotherDuck through [.github/workflows/dbt_cloud_deploy.yml](.github/workflows/dbt_cloud_deploy.yml), using a `MOTHERDUCK_TOKEN` repository secret. To run it from your own machine instead, set `MOTHERDUCK_TOKEN` and run `cd DBT && dbt build --profiles-dir . --target cloud`.
 
 ---
 

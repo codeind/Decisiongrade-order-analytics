@@ -18,7 +18,7 @@ Reference data (Brazilian states and regions) is a dbt seed in the `reference` s
 | Target | Engine | Data | Used for |
 |---|---|---|---|
 | `dev` | DuckDB file `warehouse/decisiongrade.duckdb` | full dataset | development and analysis |
-| `cloud` | MotherDuck (`md:decisiongrade`) | full dataset | shared cloud warehouse |
+| `cloud` | MotherDuck (`md:decisiongrade`) | full dataset | cloud warehouse, deployed by GitHub Actions on every merge to `main` |
 | `ci` | DuckDB file `warehouse/ci.duckdb` | 3% sample in `Data/sample` | GitHub Actions on every pull request |
 
 The SQL is the same for all three; only `profiles.yml` changes.
