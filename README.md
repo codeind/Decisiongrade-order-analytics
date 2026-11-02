@@ -73,7 +73,14 @@ All 90 tests: [Governance/test_catalog.md](Governance/test_catalog.md) · Rules 
 
 ## Dashboard
 
-[Dashboards/index.html](Dashboards/index.html) is an interactive dashboard (KPIs, trends, SLA, reviews, categories, seller tiers, sortable state table) that reads only the governed marts. A Power BI build guide with the relationship model and DAX measures is in [Dashboards/README.md](Dashboards/README.md).
+**Live dashboard:** https://codeind.github.io/Decisiongrade-order-analytics/Dashboards/
+**Lineage (dbt docs):** https://codeind.github.io/Decisiongrade-order-analytics/Docs/dbt_docs/
+
+![Dashboard overview](Dashboards/screenshots/dashboard_overview.png)
+
+The dashboard ([Dashboards/index.html](Dashboards/index.html)) reads only the governed marts: KPIs, revenue and order trend, on-time rate against the 85% floor, reviews by lateness, carrier vs seller timing, top categories, seller tiers and a sortable state table. Charts have hover tooltips. [Full-page screenshot](Dashboards/screenshots/dashboard_full.png).
+
+A Power BI build guide with the relationship model and DAX measures is in [Dashboards/README.md](Dashboards/README.md).
 
 ![On-time rate](analysis/charts/02_on_time_rate.png)
 
