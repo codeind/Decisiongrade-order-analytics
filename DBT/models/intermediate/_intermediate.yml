@@ -1,0 +1,26 @@
+version: 2
+
+models:
+  - name: int_order_items_summary
+    columns:
+      - name: order_id
+        tests: [unique, not_null]
+  - name: int_order_payments_summary
+    columns:
+      - name: order_id
+        tests: [unique, not_null]
+  - name: int_order_reviews
+    description: Latest review per order.
+    columns:
+      - name: order_id
+        tests: [unique, not_null]
+  - name: int_orders_enriched
+    description: >
+      The single place where order business rules live: revenue recognition
+      (delivered orders only), lost orders (canceled/unavailable), delivery SLA
+      (delivered on or before the promised date) and payment reconciliation.
+    columns:
+      - name: order_id
+        tests: [unique, not_null]
+      - name: customer_unique_id
+        tests: [not_null]

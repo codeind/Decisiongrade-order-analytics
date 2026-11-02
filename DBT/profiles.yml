@@ -1,0 +1,21 @@
+decisiongrade:
+  target: dev
+  outputs:
+    dev:
+      # Local warehouse on the full dataset, built from Data/raw
+      type: duckdb
+      path: "../warehouse/decisiongrade.duckdb"
+      threads: 4
+    cloud:
+      # Cloud warehouse on MotherDuck (serverless DuckDB, free tier).
+      # 1. Create an account at motherduck.com and a database named decisiongrade
+      # 2. export MOTHERDUCK_TOKEN=<your token>
+      # 3. dbt build --profiles-dir . --target cloud
+      type: duckdb
+      path: "md:decisiongrade"
+      threads: 4
+    ci:
+      # Small committed sample used by GitHub Actions on every pull request
+      type: duckdb
+      path: "../warehouse/ci.duckdb"
+      threads: 4

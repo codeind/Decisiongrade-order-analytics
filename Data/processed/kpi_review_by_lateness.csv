@@ -1,0 +1,5 @@
+lateness_band,delivered_orders,avg_review_score,negative_review_rate,five_star_rate
+on time,89443,4.29,0.0927,0.6227
+1-3 days late,1852,3.291,0.3213,0.3315
+8+ days late,2781,1.696,0.7929,0.0701
+4-7 days late,1748,2.103,0.6768,0.1407

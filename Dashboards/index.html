@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DecisionGrade Order Dashboard</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: one scanning column — KPI strip, then paired chart panels, then detail tables. */
+:root {
+  --bg: #f6f7f8;
+  --panel: #ffffff;
+  --line: #e3e6ea;
+  --ink: #12161b;
+  --ink-2: #555d68;
+  --ink-3: #7c8591;
+  --series: #2a78d6;
+  --series-soft: #9ec5f4;
+  --series-2: #eb6834;
+  --good: #0a7d0a;
+  --bad: #c2410c;
+  --bad-bg: #fdeee6;
+  --good-bg: #e7f4e7;
+  --font-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --font-data: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121417; --panel: #1a1d21; --line: #2c3137; --ink: #eef0f2; --ink-2: #b4bbc4; --ink-3: #8a929c;
+    --series: #3987e5; --series-soft: #1c5cab; --series-2: #d95926; --good: #4cc24c; --bad: #f08a5d;
+    --bad-bg: #3a2318; --good-bg: #1b3020; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121417; --panel: #1a1d21; --line: #2c3137; --ink: #eef0f2; --ink-2: #b4bbc4; --ink-3: #8a929c;
+  --series: #3987e5; --series-soft: #1c5cab; --series-2: #d95926; --good: #4cc24c; --bad: #f08a5d;
+  --bad-bg: #3a2318; --good-bg: #1b3020; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 15px/1.5 var(--font-body);
+}
+.wrap {
+  max-width: 1180px; margin: 0 auto;
+  padding-block: 28px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 20px;
+}
+header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 12px; }
+.eyebrow { font: 600 12px/1 var(--font-body); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+h1 { font: 800 clamp(24px, 4vw, 34px)/1.1 var(--font-display); margin: 6px 0 0; letter-spacing: -.01em; text-wrap: balance; }
+.meta { color: var(--ink-2); font-size: 14px; max-width: 46ch; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.kpi { background: var(--panel); padding: 14px 16px; display: grid; gap: 4px; align-content: start; }
+.kpi .label { font-size: 13px; color: var(--ink-2); }
+.kpi .value { font: 700 26px/1.1 var(--font-display); font-variant-numeric: tabular-nums; }
+.kpi .note { font-size: 12.5px; color: var(--ink-3); }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+@media (max-width: 820px) { .grid2 { grid-template-columns: minmax(0, 1fr); } }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px 14px; min-width: 0; display: grid; gap: 10px; }
+.panel h2 { font: 700 16px/1.3 var(--font-display); margin: 0; text-wrap: balance; }
+.panel .sub { font-size: 13px; color: var(--ink-2); margin: -6px 0 0; }
+.chart { position: relative; height: 260px; }
+.chart.tall { height: 340px; }
+.foot { font-size: 12.5px; color: var(--ink-3); margin: 0; }
+.tablewrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { padding: 7px 10px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+th { font: 600 12px/1.2 var(--font-body); color: var(--ink-2); text-transform: uppercase; letter-spacing: .05em; cursor: pointer; user-select: none; }
+th:focus-visible, button:focus-visible { outline: 2px solid var(--series); outline-offset: 2px; }
+th[aria-sort="ascending"]::after { content: " ▲"; }
+th[aria-sort="descending"]::after { content: " ▼"; }
+td { font-family: var(--font-data); font-size: 13px; font-variant-numeric: tabular-nums; }
+td:first-child { font-family: var(--font-body); font-size: 14px; }
+.chip { display: inline-block; padding: 1px 8px; border-radius: 999px; font: 600 12px/1.6 var(--font-body); }
+.chip.ok { background: var(--good-bg); color: var(--good); }
+.chip.low { background: var(--bad-bg); color: var(--bad); }
+.toggle { display: flex; gap: 4px; }
+.toggle button { font: 600 13px var(--font-body); color: var(--ink-2); background: transparent; border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+.toggle button[aria-pressed="true"] { background: var(--ink); color: var(--panel); border-color: var(--ink); }
+.panel-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: start; }
+.notes { font-size: 13.5px; color: var(--ink-2); display: grid; gap: 6px; }
+.notes p { margin: 0; max-width: 90ch; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">DecisionGrade · Olist marketplace, Brazil</div>
+      <h1>Order, delivery &amp; customer performance</h1>
+    </div>
+    <p class="meta" id="period">Built from the governed dbt marts. All values in Brazilian reais (R$).</p>
+  </header>
+
+  <section class="kpis" id="kpis" aria-label="Headline KPIs"></section>
+
+  <div class="grid2">
+    <section class="panel">
+      <div class="panel-head">
+        <div><h2>Monthly net revenue</h2></div>
+        <div class="toggle" role="group" aria-label="Measure">
+          <button type="button" id="m-rev" aria-pressed="true">Revenue</button>
+          <button type="button" id="m-ord" aria-pressed="false">Orders</button>
+        </div>
+      </div>
+      <p class="sub" id="trend-sub">Item value of delivered orders, by purchase month</p>
+      <div class="chart"><canvas id="c-trend" aria-label="Monthly trend chart"></canvas></div>
+    </section>
+    <section class="panel">
+      <h2>On-time delivery rate</h2>
+      <p class="sub">Delivered on or before the promised date. Dashed line is the 85% SLA floor.</p>
+      <div class="chart"><canvas id="c-ontime" aria-label="On-time rate chart"></canvas></div>
+    </section>
+  </div>
+
+  <div class="grid2">
+    <section class="panel">
+      <h2>Late orders get far worse reviews</h2>
+      <p class="sub">Average review score by how late the order arrived</p>
+      <div class="chart"><canvas id="c-late" aria-label="Review by lateness chart"></canvas></div>
+      <p class="foot" id="late-foot"></p>
+    </section>
+    <section class="panel">
+      <h2>Carrier transit vs seller handling</h2>
+      <p class="sub">Average days per delivered order. The early-2018 slowdown was in transit.</p>
+      <div class="chart"><canvas id="c-timing" aria-label="Handling and transit days chart"></canvas></div>
+      <p class="foot">Jun–Aug 2018 read low: the data ends in Oct 2018, so only faster orders from those months had arrived.</p>
+    </section>
+  </div>
+
+  <div class="grid2">
+    <section class="panel">
+      <h2>Top categories by net revenue</h2>
+      <div class="chart tall"><canvas id="c-cat" aria-label="Category revenue chart"></canvas></div>
+    </section>
+    <section class="panel">
+      <h2>Seller tiers</h2>
+      <p class="sub">Tiers need 20+ delivered orders. At risk: review below 3.5 or on-time below 80%. Top: review 4.3+ and on-time 93%+.</p>
+      <div class="tablewrap"><table id="t-tiers"></table></div>
+      <p class="foot" id="tier-foot"></p>
+    </section>
+  </div>
+
+  <section class="panel">
+    <h2>Delivery by customer state</h2>
+    <p class="sub">Select a column to sort. States under the 85% on-time floor are flagged.</p>
+    <div class="tablewrap"><table id="t-states"></table></div>
+  </section>
+
+  <section class="panel notes">
+    <h2>Definitions</h2>
+    <p><b>Net revenue</b>: item price on delivered orders. Freight is reported separately and is not revenue.</p>
+    <p><b>On time</b>: delivered on or before the estimated delivery date shown to the customer.</p>
+    <p><b>Complete months</b>: months with at least 500 orders (Jan 2017 to Aug 2018). Earlier and later months are partial.</p>
+    <p>Full formulas, owners and data-quality rules live in <code>Governance/metric_definitions.md</code>.</p>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="dashboard_data.js"></script>
+<script>
+(function () {
+  const D = window.DASHBOARD_DATA;
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const brl = v => v >= 1e6 ? "R$" + (v / 1e6).toFixed(2) + "M" : v >= 1e3 ? "R$" + Math.round(v / 1e3) + "K" : "R$" + v.toFixed(0);
+  const pct = (v, d = 1) => (v * 100).toFixed(d) + "%";
+  const num = v => v.toLocaleString("en-US");
+  const mon = s => { const d = new Date(s + "T00:00:00"); return d.toLocaleString("en-US", { month: "short" }) + " " + String(d.getFullYear()).slice(2); };
+  const S = D.snapshot;
+
+  document.getElementById("period").textContent =
+    "Orders placed Sep 2016 – Oct 2018. Built from the governed dbt marts; values in Brazilian reais (R$).";
+
+  const kpis = [
+    ["Net revenue", brl(S.net_revenue_brl), num(S.orders_delivered) + " delivered orders"],
+    ["Average order value", "R$" + S.avg_order_value_brl.toFixed(2), "net revenue ÷ delivered orders"],
+    ["On-time delivery", pct(S.on_time_rate), "of delivered orders"],
+    ["Days to deliver", S.avg_cycle_time_days.toFixed(1), "vs " + S.avg_promised_days.toFixed(1) + " days promised"],
+    ["Average review", S.avg_review_score.toFixed(2) + " ★", S.review_on_time.toFixed(2) + " on time · " + S.review_late.toFixed(2) + " late"],
+    ["Repeat customers", pct(S.repeat_customer_rate), "of " + num(S.customers) + " customers"],
+  ];
+  document.getElementById("kpis").innerHTML = kpis.map(([l, v, n]) =>
+    `<div class="kpi"><span class="label">${l}</span><span class="value">${v}</span><span class="note">${n}</span></div>`).join("");
+
+  const charts = [];
+  function base(extra) {
+    return Object.assign({
+      responsive: true, maintainAspectRatio: false, animation: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: css("--ink"), titleColor: css("--panel"), bodyColor: css("--panel"), padding: 8, displayColors: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: css("--ink-2"), maxRotation: 0, autoSkipPadding: 10 }, border: { color: css("--line") } },
+        y: { grid: { color: css("--line") }, ticks: { color: css("--ink-2") }, border: { display: false } },
+      },
+    }, extra || {});
+  }
+
+  const M = D.monthly;
+  let measure = "rev";
+  function drawAll() {
+    charts.splice(0).forEach(c => c.destroy());
+    Chart.defaults.font.family = css("--font-body");
+    const series = css("--series"), soft = css("--series-soft"), s2 = css("--series-2"), ink2 = css("--ink-2");
+
+    // trend
+    const isRev = measure === "rev";
+    const o1 = base();
+    o1.scales.y.ticks.callback = v => isRev ? brl(v) : num(v);
+    o1.plugins.tooltip.callbacks = { label: c => isRev ? brl(c.parsed.y) + " net revenue" : num(c.parsed.y) + " orders placed" };
+    o1.interaction = { mode: "index", intersect: false };
+    charts.push(new Chart(document.getElementById("c-trend"), {
+      type: "bar",
+      data: { labels: M.map(r => mon(r.month_start)), datasets: [{ data: M.map(r => isRev ? r.net_revenue : r.orders_placed), backgroundColor: series, borderRadius: { topLeft: 4, topRight: 4 }, maxBarThickness: 26 }] },
+      options: o1,
+    }));
+
+    // on-time
+    const o2 = base();
+    o2.scales.y.min = 0.75; o2.scales.y.max = 1;
+    o2.scales.y.ticks.callback = v => pct(v, 0);
+    o2.plugins.tooltip.callbacks = { label: c => c.datasetIndex === 0 ? pct(c.parsed.y) + " on time" : "SLA floor 85%" };
+    charts.push(new Chart(document.getElementById("c-ontime"), {
+      type: "line",
+      data: { labels: M.map(r => mon(r.month_start)), datasets: [
+        { data: M.map(r => r.on_time_rate), borderColor: series, backgroundColor: series, borderWidth: 2, tension: 0.25,
+          pointRadius: M.map(r => r.on_time_rate < 0.85 ? 5 : 3), pointBackgroundColor: M.map(r => r.on_time_rate < 0.85 ? s2 : series), pointBorderColor: css("--panel"), pointBorderWidth: 2 },
+        { data: M.map(() => 0.85), borderColor: ink2, borderDash: [5, 4], borderWidth: 1, pointRadius: 0 },
+      ] },
+      options: o2,
+    }));
+
+    // lateness
+    const L = D.lateness;
+    const o3 = base({ interaction: { mode: "nearest", intersect: true } });
+    o3.scales.y.min = 0; o3.scales.y.max = 5;
+    o3.plugins.tooltip.callbacks = { label: c => { const r = L[c.dataIndex]; return [r.avg_review_score.toFixed(2) + " average score", pct(r.negative_review_rate, 0) + " gave 1–2 stars", num(r.delivered_orders) + " orders"]; } };
+    charts.push(new Chart(document.getElementById("c-late"), {
+      type: "bar",
+      data: { labels: L.map(r => r.lateness_band), datasets: [{ data: L.map(r => r.avg_review_score), backgroundColor: [series, soft, s2, s2], borderRadius: { topLeft: 4, topRight: 4 }, maxBarThickness: 64 }] },
+      options: o3,
+    }));
+    const worst = L[L.length - 1];
+    document.getElementById("late-foot").textContent =
+      `Orders 8+ days late: ${pct(worst.negative_review_rate, 0)} left a 1–2 star review, against ${pct(L[0].negative_review_rate, 0)} of on-time orders.`;
+
+    // timing
+    const T = D.timing;
+    const o4 = base({ plugins: { legend: { display: true, position: "top", align: "start", labels: { color: css("--ink-2"), boxWidth: 12, boxHeight: 2 } },
+      tooltip: { backgroundColor: css("--ink"), titleColor: css("--panel"), bodyColor: css("--panel"), callbacks: { label: c => c.dataset.label + ": " + c.parsed.y.toFixed(1) + " days" } } } });
+    o4.scales.y.min = 0;
+    charts.push(new Chart(document.getElementById("c-timing"), {
+      type: "line",
+      data: { labels: T.map(r => mon(r.month_start)), datasets: [
+        { label: "Carrier transit", data: T.map(r => r.transit_days), borderColor: series, backgroundColor: series, borderWidth: 2, pointRadius: 2, tension: 0.25 },
+        { label: "Seller handling", data: T.map(r => r.handling_days), borderColor: s2, backgroundColor: s2, borderWidth: 2, pointRadius: 2, tension: 0.25 },
+      ] },
+      options: o4,
+    }));
+
+    // categories
+    const C = D.categories.slice(0, 12);
+    const o5 = base({ indexAxis: "y", interaction: { mode: "nearest", axis: "y", intersect: false } });
+    o5.scales.x.grid = { color: css("--line") };
+    o5.scales.y.grid = { display: false };
+    o5.scales.x.ticks.callback = v => brl(v);
+    o5.plugins.tooltip.callbacks = { label: c => { const r = C[c.dataIndex]; return [brl(r.net_revenue) + " · " + pct(r.revenue_share) + " of revenue", r.avg_review_score.toFixed(2) + " ★ · " + pct(r.on_time_rate) + " on time"]; } };
+    charts.push(new Chart(document.getElementById("c-cat"), {
+      type: "bar",
+      data: { labels: C.map(r => r.category.replace(/_/g, " ")), datasets: [{ data: C.map(r => r.net_revenue), backgroundColor: series, borderRadius: { topRight: 4, bottomRight: 4 }, maxBarThickness: 20 }] },
+      options: o5,
+    }));
+  }
+
+  // seller tiers table
+  const tiers = D.sellerTiers;
+  const tierRev = tiers.reduce((a, r) => a + r.net_revenue, 0);
+  document.getElementById("t-tiers").innerHTML =
+    "<thead><tr><th scope='col'>Tier</th><th scope='col'>Sellers</th><th scope='col'>Revenue share</th><th scope='col'>On time</th><th scope='col'>Review</th></tr></thead><tbody>" +
+    tiers.map(r => `<tr><td>${r.seller_tier}</td><td>${num(r.sellers)}</td><td>${pct(r.net_revenue / tierRev)}</td><td>${pct(r.on_time_rate)}</td><td>${r.avg_review_score.toFixed(2)}</td></tr>`).join("") + "</tbody>";
+  document.getElementById("tier-foot").textContent =
+    `The top 10% of ${num(S.sellers_with_sales)} sellers generate ${pct(S.top10pct_seller_revenue_share, 0)} of net revenue.`;
+
+  // sortable state table
+  const cols = [
+    ["state_code", "State", r => `${r.state_code} <span style="color:var(--ink-3)">${r.state_name}</span>`],
+    ["region", "Region", r => r.region],
+    ["delivered_orders", "Orders", r => num(r.delivered_orders)],
+    ["on_time_rate", "On time", r => `<span class="chip ${r.on_time_rate < 0.85 ? "low" : "ok"}">${r.on_time_rate < 0.85 ? "▼ " : ""}${pct(r.on_time_rate)}</span>`],
+    ["avg_cycle_time_days", "Days to deliver", r => r.avg_cycle_time_days.toFixed(1)],
+    ["avg_promised_days", "Days promised", r => r.avg_promised_days.toFixed(1)],
+    ["avg_freight", "Avg freight", r => "R$" + r.avg_freight.toFixed(2)],
+    ["avg_review_score", "Review", r => r.avg_review_score.toFixed(2)],
+  ];
+  let sortKey = "delivered_orders", sortDir = -1;
+  function drawStates() {
+    const rows = D.states.slice().sort((a, b) => (a[sortKey] > b[sortKey] ? 1 : a[sortKey] < b[sortKey] ? -1 : 0) * sortDir);
+    const t = document.getElementById("t-states");
+    t.innerHTML = "<thead><tr>" + cols.map(([k, l]) =>
+      `<th scope="col" tabindex="0" data-k="${k}" aria-sort="${k === sortKey ? (sortDir > 0 ? "ascending" : "descending") : "none"}">${l}</th>`).join("") +
+      "</tr></thead><tbody>" + rows.map(r => "<tr>" + cols.map(([, , f]) => `<td>${f(r)}</td>`).join("") + "</tr>").join("") + "</tbody>";
+    t.querySelectorAll("th").forEach(th => {
+      const go = () => { const k = th.dataset.k; sortDir = k === sortKey ? -sortDir : (k === "state_code" || k === "region" ? 1 : -1); sortKey = k; drawStates(); };
+      th.addEventListener("click", go);
+      th.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
+    });
+  }
+
+  function setMeasure(m) {
+    measure = m;
+    document.getElementById("m-rev").setAttribute("aria-pressed", m === "rev");
+    document.getElementById("m-ord").setAttribute("aria-pressed", m === "ord");
+    document.getElementById("trend-sub").textContent = m === "rev" ? "Item value of delivered orders, by purchase month" : "All orders placed, by purchase month";
+    drawAll();
+  }
+  document.getElementById("m-rev").addEventListener("click", () => setMeasure("rev"));
+  document.getElementById("m-ord").addEventListener("click", () => setMeasure("ord"));
+
+  drawAll();
+  drawStates();
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", drawAll);
+  new MutationObserver(drawAll).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+})();
+</script>
+</body>
+</html>

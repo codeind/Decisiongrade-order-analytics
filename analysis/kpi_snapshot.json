@@ -1,0 +1,20 @@
+{
+  "net_revenue_brl": 13221498.11,
+  "orders_placed": 99441,
+  "orders_delivered": 96478,
+  "lost_order_rate": 0.0124,
+  "avg_order_value_brl": 137.04,
+  "on_time_rate": 0.9323,
+  "avg_cycle_time_days": 12.56,
+  "avg_promised_days": 24.37,
+  "avg_review_score": 4.156,
+  "review_on_time": 4.29,
+  "review_late": 2.27,
+  "customers": 96096,
+  "repeat_customer_rate": 0.0312,
+  "repeat_customer_revenue_share": 0.0575,
+  "sellers_with_sales": 2970,
+  "top10pct_seller_revenue_share": 0.6711,
+  "peak_day": "2017-11-24",
+  "peak_day_orders": 1176
+}
