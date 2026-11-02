@@ -1,4 +1,4 @@
-# Findings — DecisionGrade Order Analytics
+# Findings: DecisionGrade Order Analytics
 
 All numbers below come from the governed dbt marts (`metrics.*` and `core.*`) built on the public Olist Brazilian e-commerce dataset (99,441 orders, Sep 2016 – Oct 2018). Headline figures are regenerated in `analysis/kpi_snapshot.json` every time `analysis/run_analysis.py` runs. Currency is Brazilian reais (R$).
 

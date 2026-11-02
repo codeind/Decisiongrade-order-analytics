@@ -2,7 +2,7 @@
 
 | Folder | Contents | In git? |
 |---|---|---|
-| `raw/` | The 9 original Olist CSV files (~120 MB), never edited | **No.** Download with `python scripts/download_data.py` |
+| `raw/` | The 9 original Olist CSV files (~120 MB), never edited | Yes. `scripts/download_data.py` can re-download them from Kaggle |
 | `sample/` | 3% referentially complete sample (3,049 orders, ~2.6 MB) used by CI | Yes. Rebuild with `python scripts/make_sample.py` |
 | `processed/` | Governed KPI tables exported from the warehouse for Power BI / Excel | Yes. Rebuilt by `python analysis/run_analysis.py` |
 

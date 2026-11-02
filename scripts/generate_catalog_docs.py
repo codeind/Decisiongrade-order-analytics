@@ -12,10 +12,10 @@ ROOT = Path(__file__).resolve().parents[1]
 TARGET = ROOT / "DBT" / "target"
 LAYERS = [
     ("seed", "Reference data (seeds)"),
-    ("staging", "Silver — staging (cleaned, typed, one row per source record)"),
-    ("intermediate", "Silver — intermediate (business rules)"),
-    ("core", "Gold — star schema (facts and dimensions)"),
-    ("metrics", "Gold — governed KPI marts"),
+    ("staging", "Silver: staging (cleaned, typed, one row per source record)"),
+    ("intermediate", "Silver: intermediate (business rules)"),
+    ("core", "Gold: star schema (facts and dimensions)"),
+    ("metrics", "Gold: governed KPI marts"),
 ]
 
 

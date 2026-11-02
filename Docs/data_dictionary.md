@@ -15,7 +15,7 @@ Rows: 27
 | `state_name` | varchar |  |
 | `region` | varchar |  |
 
-## Silver — staging (cleaned, typed, one row per source record)
+## Silver: staging (cleaned, typed, one row per source record)
 
 ### `staging.stg_customers`
 One row per customer_id (a new id per order); customer_unique_id is the person.
@@ -133,7 +133,7 @@ Rows: 3,095
 | `city` | varchar |  |
 | `state_code` | varchar |  |
 
-## Silver — intermediate (business rules)
+## Silver: intermediate (business rules)
 
 ### `intermediate.int_order_items_summary`
 
@@ -220,7 +220,7 @@ Rows: 99,441
 | `review_score` | integer |  |
 | `review_has_comment` | boolean |  |
 
-## Gold — star schema (facts and dimensions)
+## Gold: star schema (facts and dimensions)
 
 ### `core.dim_customer`
 One row per real customer (customer_unique_id), keyed by an md5 surrogate key.
@@ -367,7 +367,7 @@ Rows: 112,650
 | `freight_value` | decimal(12,2) |  |
 | `net_revenue` | decimal(12,2) |  |
 
-## Gold — governed KPI marts
+## Gold: governed KPI marts
 
 ### `metrics.kpi_category_performance`
 

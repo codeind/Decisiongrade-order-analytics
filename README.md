@@ -86,13 +86,12 @@ git clone https://github.com/codeind/Decisiongrade-order-analytics.git
 cd Decisiongrade-order-analytics
 pip install -r requirements.txt
 
-python scripts/download_data.py      # Olist CSVs into Data/raw (needs a Kaggle API token)
 make build                           # dbt: seed, 25 models, 90 tests (~20 s)
 make docs                            # lineage site → Docs/dbt_docs/index.html
 make analysis                        # charts, KPI exports, dashboard data
 ```
 
-No Kaggle token? Download the zip from the [dataset page](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) and unzip into `Data/raw/`. To try the pipeline without downloading anything, run `make ci`, which builds on the committed sample.
+The raw Olist files are already in `Data/raw/`, so the pipeline runs straight after cloning. `make ci` builds on the small 3% sample instead, which is what GitHub Actions runs.
 
 Cloud warehouse: set `MOTHERDUCK_TOKEN` and run `cd DBT && dbt build --profiles-dir . --target cloud`.
 
@@ -103,7 +102,7 @@ Cloud warehouse: set `MOTHERDUCK_TOKEN` and run `cd DBT && dbt build --profiles-
 ```
 ├── DBT/                    dbt project: models, tests, seeds, macros, profiles
 ├── Data/
-│   ├── raw/                original Olist CSVs (downloaded, git-ignored)
+│   ├── raw/                original Olist CSVs (bronze layer)
 │   ├── sample/             3% sample used by CI
 │   └── processed/          governed KPI exports for BI tools
 ├── analysis/

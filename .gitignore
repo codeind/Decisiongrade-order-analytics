@@ -1,5 +1,3 @@
-# full raw data is downloaded, not committed (see Data/README.md)
-Data/raw/*.csv
 # local warehouses
 warehouse/*
 !warehouse/.gitkeep
