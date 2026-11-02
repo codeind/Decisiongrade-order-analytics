@@ -4,6 +4,7 @@ Changes to models, tests and metric definitions. Newest first.
 
 | Date | Change | Metrics affected | PR |
 |---|---|---|---|
+| 2026-11 | Branch protection on `main`: pull request and passing `dbt-build` check required | None | this PR |
 | 2026-11 | Raw Olist files restored to `Data/raw/` so the pipeline runs straight after cloning | None | — |
 | 2026-11 | Built dbt project: 8 staging, 4 intermediate, 8 core and 5 metric models; 90 tests; CI workflow | All (initial definitions) | #1 |
 | 2026-11 | Quarantine rule for carrier dates earlier than purchase (166 orders) | Handling and transit time | #1 |

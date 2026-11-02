@@ -7,18 +7,19 @@
 3. If a metric formula changes, update `metric_definitions.md` and add an entry to `change_log.md` in the same branch.
 4. Open a pull request. The template asks for the impact on reported numbers.
 5. **dbt CI** (`.github/workflows/dbt_ci.yml`) runs `dbt build --target ci` on the committed sample: all models plus all 90 tests.
-6. A code owner reviews (`.github/CODEOWNERS` covers metric marts, tests and this folder).
-7. Merge only when CI is green and the review is approved.
+6. Review the diff (on a team, a code owner from `.github/CODEOWNERS` approves).
+7. Merge only when CI is green.
 
-## Branch protection settings (GitHub → Settings → Branches → Add rule for `main`)
+## Branch protection on `main` (enabled)
 
-- Require a pull request before merging
-- Require approvals: 1
-- Require review from Code Owners
-- Require status checks to pass: `dbt-build`
-- Do not allow bypassing the above settings
+Settings → Branches → rule for `main`:
 
-With these on, a failing error-severity test makes the `dbt-build` check fail and GitHub blocks the merge.
+- **Require a pull request before merging**: nobody pushes to `main` directly
+- **Require status checks to pass: `dbt-build`**: the CI job must be green
+
+A failing error-severity dbt test fails the `dbt-build` check, and GitHub blocks the merge.
+
+Approvals are not required because this is a single-maintainer repository (GitHub does not let authors approve their own pull requests). On a team, also turn on **Require approvals (1)** and **Require review from Code Owners**, which uses `.github/CODEOWNERS`.
 
 ## Lineage
 
