@@ -1,0 +1,104 @@
+version: 2
+
+models:
+  - name: stg_orders
+    description: Orders, one row per order, with timestamps cast from text.
+    columns:
+      - name: order_id
+        tests: [unique, not_null]
+      - name: customer_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: customer_id
+      - name: order_status
+        tests:
+          - accepted_values:
+              arguments:
+                values: [delivered, shipped, canceled, unavailable, invoiced, processing, created, approved]
+      - name: purchased_at
+        tests: [not_null]
+
+  - name: stg_order_items
+    description: Order lines. order_item_number is the line position inside the order.
+    columns:
+      - name: order_item_key
+        tests: [unique, not_null]
+      - name: order_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_orders')
+                field: order_id
+      - name: product_id
+        tests:
+          - relationships:
+              arguments:
+                to: ref('stg_products')
+                field: product_id
+      - name: seller_id
+        tests:
+          - relationships:
+              arguments:
+                to: ref('stg_sellers')
+                field: seller_id
+      - name: item_price
+        tests: [not_null]
+
+  - name: stg_payments
+    description: Payment records; one order can be paid with several methods.
+    columns:
+      - name: payment_key
+        tests: [unique, not_null]
+      - name: payment_type
+        tests:
+          - accepted_values:
+              arguments:
+                values: [credit_card, boleto, voucher, debit_card, not_defined]
+
+  - name: stg_reviews
+    description: Customer review submissions (not yet deduplicated to one per order).
+    columns:
+      - name: review_score
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [1, 2, 3, 4, 5]
+                quote: false
+
+  - name: stg_customers
+    description: One row per customer_id (a new id per order); customer_unique_id is the person.
+    columns:
+      - name: customer_id
+        tests: [unique, not_null]
+      - name: customer_unique_id
+        tests: [not_null]
+      - name: state_code
+        tests:
+          - relationships:
+              arguments:
+                to: ref('br_states')
+                field: state_code
+
+  - name: stg_sellers
+    columns:
+      - name: seller_id
+        tests: [unique, not_null]
+
+  - name: stg_products
+    description: Products with English category names; source spelling errors in column names fixed.
+    columns:
+      - name: product_id
+        tests: [unique, not_null]
+      - name: category
+        tests: [not_null]
+
+  - name: stg_geolocation
+    description: One coordinate per zip prefix (median of the raw points inside Brazil).
+    columns:
+      - name: zip_prefix
+        tests: [unique, not_null]

@@ -1,0 +1,18 @@
+# full raw data is downloaded, not committed (see Data/README.md)
+Data/raw/*.csv
+# local warehouses
+warehouse/*
+!warehouse/.gitkeep
+*.duckdb
+*.duckdb.wal
+# dbt build output
+DBT/target/
+DBT/dbt_packages/
+DBT/logs/
+logs/
+# python / OS
+__pycache__/
+.venv/
+.DS_Store
+.env
+DBT/.user.yml

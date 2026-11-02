@@ -1,0 +1,29 @@
+version: 2
+
+models:
+  - name: kpi_monthly
+    description: Governed monthly KPIs. See Governance/metric_definitions.md for every formula.
+    columns:
+      - name: month_start
+        tests: [unique, not_null]
+  - name: kpi_delivery_by_state
+    columns:
+      - name: state_code
+        tests: [unique, not_null]
+  - name: kpi_review_by_lateness
+    columns:
+      - name: lateness_band
+        tests: [unique, not_null]
+  - name: kpi_category_performance
+    columns:
+      - name: category
+        tests: [unique, not_null]
+  - name: seller_scorecard
+    columns:
+      - name: seller_key
+        tests: [unique, not_null]
+      - name: seller_tier
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['top performer', 'standard', 'at risk', 'insufficient volume']

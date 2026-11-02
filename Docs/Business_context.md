@@ -1,86 +1,37 @@
-# Business Context — DecisionGrade Order Analytics System
+# Business context
 
-## Company Overview
+## The business
 
-This project represents a mid-size multi-channel retail company operating in the United States with annual revenue between $150M and $300M.
+Olist is a Brazilian marketplace that connects small and mid-size merchants to large online stores. A customer buys from a seller through Olist; the seller ships through a carrier; Olist collects payment and a review. This project uses Olist's public dataset of **99,441 orders placed between September 2016 and October 2018**, covering 96,096 customers and 3,095 sellers across all 27 Brazilian states.
 
-The company sells products through:
+## Order-to-delivery process in the data
 
-- Direct-to-Consumer website and mobile application
-- Wholesale distributors
-- Third-party retail partners
+| Step | Field in source | Model field |
+|---|---|---|
+| Customer places order | `order_purchase_timestamp` | `purchased_at` |
+| Payment approved | `order_approved_at` | `approved_at` |
+| Seller hands parcel to carrier | `order_delivered_carrier_date` | `shipped_at` |
+| Carrier delivers | `order_delivered_customer_date` | `delivered_at` |
+| Date promised at checkout | `order_estimated_delivery_date` | `estimated_delivery_at` |
+| Customer reviews | `review_score` | `review_score` |
 
-Operations are supported by centralized warehouses and regional fulfillment centers.
+## Reporting problems the platform addresses
 
----
+These are the problems that come up when teams query raw marketplace data independently. Each one has a concrete fix in the models.
 
-## Order-to-Delivery Process
+| Problem | Example in the raw data | Fix |
+|---|---|---|
+| Inconsistent revenue | Should canceled or in-transit orders count? Is freight revenue? | Revenue recognised at delivery, item value only (`int_orders_enriched`) |
+| Double-counted customers | A new `customer_id` is issued for every order | All customer metrics use `customer_unique_id` (`dim_customer`) |
+| Conflicting SLA numbers | "Late" measured against different dates | One rule: delivered date vs. promised date, compared at date level |
+| Duplicate reviews | ~550 orders have several reviews | Latest review per order (`int_order_reviews`) |
+| Bad source timestamps | 166 carrier dates earlier than the purchase | Quarantined and flagged, monitored by a test |
+| Payment mismatches | Payments can differ from items + freight (instalment interest, vouchers) | Reconciliation column and a threshold test |
 
-1. Customer places an order.
-2. Payment is authorized.
-3. Inventory is reserved.
-4. Order is routed to fulfillment center.
-5. Shipment is created.
-6. Package is dispatched.
-7. Carrier delivers package.
-8. Delivery confirmation is received.
-9. Returns and refunds are processed.
+## Decisions supported
 
----
+See [Decision_mapping.md](Decision_mapping.md).
 
-## Inventory Management
+## Not covered by this data
 
-- Inventory levels are updated continuously.
-- Nightly inventory snapshots are recorded.
-- Manual adjustments are performed for damaged or lost items.
-
----
-
-## Revenue Recognition
-
-- Sales recognizes revenue at order creation.
-- Finance recognizes revenue at shipment confirmation.
-- Refunds and returns are processed asynchronously.
-
----
-
-## Data Sources
-
-| System | Data Type | Frequency |
-|--------|-----------|-----------|
-| E-commerce Platform | Orders | Real-time |
-| WMS | Shipments | Hourly |
-| Inventory System | Stock Levels | Daily |
-| CRM | Customer Data | Daily |
-| ERP | Financial Records | Daily |
-
----
-
-## Reporting Challenges
-
-### Revenue Discrepancies
-Different departments apply inconsistent revenue definitions, resulting in conflicting reports.
-
-### Delivery Performance Conflicts
-Operations and Customer Support use different delivery timelines, producing inconsistent SLA metrics.
-
-### Inventory Visibility
-Lack of standardized snapshots causes inaccurate stock assessments.
-
----
-
-## Business Risks
-
-| Risk | Impact |
-|------|--------|
-| Misreported revenue | Audit findings |
-| SLA violations | Contract penalties |
-| Stock imbalances | Lost revenue |
-| Low data trust | Poor decisions |
-
----
-
-## Project Objective
-
-Establish a centralized, governed analytics platform that enforces consistent metric definitions and enables reliable business decision-making.
-
+The dataset has no inventory, stock, product cost or marketing data. Inventory and margin metrics from the original plan are therefore out of scope.

@@ -1,0 +1,12 @@
+version: 2
+seeds:
+  - name: br_states
+    description: Reference list of the 27 Brazilian federative units and their IBGE macro-region.
+    columns:
+      - name: state_code
+        tests: [unique, not_null]
+      - name: region
+        tests:
+          - accepted_values:
+              arguments:
+                values: ["North", "Northeast", "Central-West", "Southeast", "South"]

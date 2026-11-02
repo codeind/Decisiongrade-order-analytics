@@ -1,84 +1,28 @@
-# Data Directory — DecisionGrade Order Analytics System
+# Data
 
-## Purpose
+| Folder | Contents | In git? |
+|---|---|---|
+| `raw/` | The 9 original Olist CSV files (~120 MB), never edited | **No.** Download with `python scripts/download_data.py` |
+| `sample/` | 3% referentially complete sample (3,049 orders, ~2.6 MB) used by CI | Yes. Rebuild with `python scripts/make_sample.py` |
+| `processed/` | Governed KPI tables exported from the warehouse for Power BI / Excel | Yes. Rebuilt by `python analysis/run_analysis.py` |
 
-This directory contains all datasets used to power the analytics platform.  
-It serves as the foundation for all downstream transformations, metrics, and reporting.
+## Source
 
-All data in this directory is treated as source-of-truth input and is preserved in its original form.
+[Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) on Kaggle, licensed CC BY-NC-SA 4.0. Real, anonymised commercial data; company names in reviews were replaced with Game of Thrones house names by Olist.
 
-No business logic is applied at this stage.
+| File | Rows | Grain |
+|---|---|---|
+| olist_orders_dataset | 99,441 | order |
+| olist_order_items_dataset | 112,650 | order line |
+| olist_order_payments_dataset | 103,886 | payment record |
+| olist_order_reviews_dataset | 99,224 | review |
+| olist_customers_dataset | 99,441 | customer_id (one per order) |
+| olist_sellers_dataset | 3,095 | seller |
+| olist_products_dataset | 32,951 | product |
+| olist_geolocation_dataset | 1,000,163 | geocoded point |
+| product_category_name_translation | 71 | category |
 
----
+## Rules
 
-## Directory Structure
-
-data/
-│
-├── raw/ # Original source files (immutable)
-├── processed/ # Cleaned and standardized extracts (generated)
-└── sources.md # Dataset documentation
-
----
-
-## Raw Data Layer
-
-The `raw/` directory contains unmodified source datasets extracted from the Olist Brazilian E-Commerce platform.
-
-These files are preserved to:
-
-- Enable auditability
-- Support data lineage
-- Allow full reprocessing
-- Prevent accidental data loss
-
-Files in this directory must never be edited manually.
-
----
-
-## Processed Data Layer
-
-The `processed/` directory contains derived datasets generated during exploratory analysis and validation.
-
-These files are used for:
-
-- Initial profiling
-- Schema verification
-- Quality checks
-- Testing transformations
-
-All files in this directory are reproducible from raw sources.
-
----
-
-## Data Governance Principles
-
-1. Raw data is immutable
-2. All transformations are version-controlled
-3. No business logic is embedded in raw files
-4. All derived datasets must be reproducible
-5. Source metadata must be documented
-
----
-
-## Dataset Inventory
-
-| Dataset | Description | Source |
-|---------|-------------|--------|
-| olist_customers | Customer master data | Olist Platform |
-| olist_orders | Order records | Olist Platform |
-| olist_order_items | Line items | Olist Platform |
-| olist_payments | Payment records | Olist Platform |
-| olist_reviews | Customer reviews | Olist Platform |
-| olist_products | Product master | Olist Platform |
-| olist_sellers | Seller master | Olist Platform |
-| olist_geolocation | Location reference | Olist Platform |
-| category_translation | Category mapping | Olist Platform |
-
----
-
-## Usage Policy
-
-This data is intended exclusively for analytics system development, testing, and demonstration.
-
-It must not be used for commercial purposes or redistributed without proper authorization.
+1. Raw files are immutable. All cleaning happens in dbt staging models.
+2. Everything outside `raw/` can be regenerated from code.
